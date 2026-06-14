@@ -125,20 +125,71 @@ Open [http://localhost:3000](http://localhost:3000) in Chrome or Edge.
 
 ## Architecture
 
-```
-Browser
-  ├── Web Speech API        — voice input / speech output
-  ├── Next.js 16 App Router — React 19 + Tailwind CSS
-  │   ├── src/app/page.tsx          — main UI
-  │   ├── src/app/api/azure/        — Azure AI Foundry proxy (Phi-4)
-  │   ├── src/app/api/copilot/      — GitHub Models proxy (fallback)
-  │   ├── src/app/api/gist/         — GitHub Gist export
-  │   ├── src/lib/                  — constants, types, i18n, parsers, prompts
-  │   ├── src/hooks/                — useVoice, useVoicePermission, useTheme, …
-  │   ├── src/store/appStore.ts     — Zustand persistent state
-  │   └── src/components/           — Header, CodeOutput, ErrorBoundary
-  └── Azure AI Foundry
-        └── Phi-4 with accessibility-focused system prompt
+## Architecture
+
+```mermaid
+graph TB
+    subgraph FE["Browser — Next.js 16 + React 19 + Tailwind"]
+        direction TB
+        VOICE["Voice input<br/>useVoice, useVoicePermission"]
+        CMD["Voice commands<br/>useVoiceCommandHandler"]
+        TRANS["Transcript handler<br/>useVoiceTranscriptHandler"]
+        STORE["App store<br/>appStore.ts (Zustand, persisted)"]
+        I18N["i18n<br/>i18n.ts — EN / ES / FR"]
+        KEY["Keyboard shortcuts<br/>useKeyboardShortcuts"]
+        PROFILES["Perception + verbosity profiles"]
+        THEME["Theme + font<br/>useTheme"]
+        UI["UI components<br/>CodeOutput, Header, ErrorBoundary"]
+        A11Y["a11y linting + TTS<br/>a11y.ts + axe-core"]
+        TESTS["Test suite (Vitest)<br/>a11y.test.ts, prompts.test.ts"]
+
+        VOICE --> CMD --> TRANS
+        STORE --> I18N --> KEY
+        PROFILES --> THEME
+        UI --> A11Y
+        A11Y -.covered by.- TESTS
+    end
+
+    subgraph API["Next.js API layer — hardened"]
+        direction TB
+        RATE["Rate limiting<br/>rateLimit.ts — per-IP"]
+        ORIGIN["Origin guard<br/>blocks cross-origin abuse"]
+        SWITCH["Backend switch<br/>NEXT_PUBLIC_AI_BACKEND"]
+        GIST["/api/gist — Gist export"]
+        GEN["/api/azure + /api/copilot<br/>code generation routes"]
+
+        RATE --> ORIGIN --> SWITCH
+        SWITCH --> GEN
+        SWITCH --> GIST
+    end
+
+    subgraph FOUNDRY["Azure AI Foundry — Foundry IQ"]
+        direction TB
+        PHI4["Phi-4 deployment<br/>streaming chat completions"]
+        PROMPTS["prompts.ts<br/>WCAG 2.2: 1.1.1, 1.4.3, 2.1.1,<br/>2.4.3, 2.4.7, 2.5.8, 3.3.2, 4.1.2"]
+        PHI4 --- PROMPTS
+    end
+
+    subgraph GHMODELS["GitHub Models — fallback"]
+        direction TB
+        GPT["gpt-4o-mini<br/>streaming chat completions"]
+        SAMEPROMPT["Same prompts, identical<br/>JSON output contract"]
+        GPT --- SAMEPROMPT
+    end
+
+    subgraph OUT["Returned to user"]
+        direction TB
+        CODE["Accessible code<br/>live in editor, diff vs previous"]
+        SPEECH["Spoken summary<br/>TTS, verbosity-adjusted"]
+        VIOL["WCAG violations<br/>axe-core scan, criterion + fix"]
+        HIST["Voice history entry<br/>replay, undo, redo"]
+    end
+
+    FE --> API
+    GEN -->|azure| FOUNDRY
+    GEN -->|copilot| GHMODELS
+    FOUNDRY -->|streamed response| OUT
+    GHMODELS -->|streamed response| OUT
 ```
 
 ---

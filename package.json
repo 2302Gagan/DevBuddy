@@ -1,0 +1,48 @@
+{
+  "name": "devbuddy",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.13.1",
+    "axe-core": "^4.9.1",
+    "lucide-react": "^0.383.0",
+    "next": "^16.2.9",
+    "openai": "^6.42.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-syntax-highlighter": "^16.1.1",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "@vitejs/plugin-react": "^6.0.2",
+    "@vitest/ui": "^4.1.8",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^9.15.0",
+    "eslint-config-next": "^16.2.9",
+    "eslint-plugin-jsx-a11y": "^6.9.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "jsdom": "^29.1.1",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.1",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5",
+    "vitest": "^4.1.8"
+  }
+}
